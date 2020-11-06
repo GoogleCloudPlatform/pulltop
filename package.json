@@ -1,0 +1,25 @@
+{
+    "name": "pulltop",
+    "files": [
+        "pulltop.js"
+    ],
+    "description": "pulltop: CLI Pub/Sub topic subscriber and console logger",
+    "private": true,
+    "license": "Apache-2.0",
+    "author": "Google Inc.",
+    "engines": {
+        "node": ">=14"
+    },
+    "repository": "https://github.com/GoogleCloudPlatform/pulltop",
+    "dependencies": {
+        "@google-cloud/pubsub": "^1.7.2",
+        "uuid": "^3.1.0"
+    },
+    "bin": {
+        "pulltop": "./pulltop.js"
+    },
+    "subscriberConfig": {
+        "ackDeadline": 600,
+        "maxMessages": 180
+    }
+}
