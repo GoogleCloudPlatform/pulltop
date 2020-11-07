@@ -1,10 +1,10 @@
 {
     "name": "pulltop",
+    "version": "0.0.1",
     "files": [
         "pulltop.js"
     ],
     "description": "pulltop: CLI Pub/Sub topic subscriber and console logger",
-    "private": true,
     "license": "Apache-2.0",
     "author": "Google Inc.",
     "engines": {
@@ -18,8 +18,11 @@
     "bin": {
         "pulltop": "./pulltop.js"
     },
+    "publishConfig":{
+	"registry":"https://wombat-dressing-room.appspot.com"
+    },
     "subscriberConfig": {
-        "ackDeadline": 600,
-        "maxMessages": 180
+	"ackDeadline": 600,
+	"maxMessages": 180
     }
 }
