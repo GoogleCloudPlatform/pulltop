@@ -22,6 +22,14 @@ const util = require('util');
 const uuidv1 = require('uuid/v1');
 const config = require('./package').subscriberConfig
 
+const DEFAULT_MAXMSG = 300;
+const DEFAULT_ACKDEAD = 90;
+
+console.log(process.argv.slice(2)) && process.exit(0);
+
+/** parse command-line args **/
+const options = parseArgs();
+
 /** Maximum number of messages to queue locally un-acked */
 const MAXMSG = (config && config.maxMessages) || 300;
 
@@ -67,6 +75,22 @@ const onError = function(error) {
 const onMessage = function(message) {
     console.log(`${message.data}`);
     message.ack();
+}
+
+const parseArgs = function() {
+
+    let maxMsg = undefined;
+    let ackDead = undefined;
+
+    const args = process.argv.slice(2);
+    if (args.length > 0) {
+    }
+    
+    return {
+	maxMsg: maxMsg,
+	ackDead: ackDead
+    };	
+    
 }
 
 /** create subscription, register handler **/

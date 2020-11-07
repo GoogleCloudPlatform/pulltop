@@ -18,11 +18,11 @@
     "bin": {
         "pulltop": "./pulltop.js"
     },
-    "publishConfig":{
-	"registry":"https://wombat-dressing-room.appspot.com"
+    "publishConfig": {
+        "registry": "https://wombat-dressing-room.appspot.com"
     },
     "subscriberConfig": {
-	"ackDeadline": 600,
-	"maxMessages": 180
+        "ackDeadline": 600,
+        "maxMessages": 180
     }
 }
