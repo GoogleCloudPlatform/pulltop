@@ -20,44 +20,42 @@ const {PubSub} = require('@google-cloud/pubsub');
 const pubsub = new PubSub();
 const util = require('util');
 const uuidv1 = require('uuid/v1');
-const config = require('./package').subscriberConfig
+const parseArgs = require('minimist');
 
-const DEFAULT_MAXMSG = 300;
 const DEFAULT_ACKDEAD = 90;
+const DEFAULT_MAXMSG = 300;
+let ackDead;
+let maxMsg;
+let topicName;
 
-console.log(process.argv.slice(2)) && process.exit(0);
-
-/** parse command-line args **/
-const options = parseArgs();
-
-/** Maximum number of messages to queue locally un-acked */
-const MAXMSG = (config && config.maxMessages) || 300;
-
-/** Deadline for acknowledging messages */
-const ACKDEAD  = (config && config.ackDeadline) || 90;
-
-let newSubscription;
-
-/** validate input **/
-const TOPICNAME = process.argv[2];
-if (!TOPICNAME) {
-    console.error('Usage: pulltop <topic-name>');
-    process.exit(1);
+/** check CLI args for sanity **/
+const validateArgs = function(options) {
+    if (!options._[0]) { // topic name for subscription
+        console.error('Usage: pulltop [-m <maxMessages>] [-d <ackDeadline>] <topic-name>');
+        process.exit(1);
+    } else {
+        topicName = options._[0];
+    }
+    maxMsg = options.m || DEFAULT_MAXMSG;
+    ackDead = options.d || DEFAULT_ACKDEAD;
 }
+validateArgs(parseArgs(process.argv.slice(2)));
 
 /** manufacture subscription name **/
-const SUBNAME = process.env.USER + '-' +
-      TOPICNAME.replace(/\//gi, '-') + '-' +
+const SUBNAME = (process.env.USER || 'pulltop') + '-' +
+      topicName.replace(/\//gi, '-') + '-' +
       uuidv1();
-let SUB = undefined;
+let sub = undefined;
 
 /** process signal handlers to clean up subs **/
 const handleExit = function() {
-    if (SUB) {
-        SUB.delete(function (err) {
+    if (sub) {
+        sub.delete(function (err) {
             if (err) {
                 let error = util.inspect(err);
                 console.error(`WARNING: could not delete subscription ${SUBNAME}: ${error}`);
+            } else {
+                console.error(`Subscription ${SUBNAME} deleted`);
             }
         });
     }
@@ -77,42 +75,23 @@ const onMessage = function(message) {
     message.ack();
 }
 
-const parseArgs = function() {
-
-    let maxMsg = undefined;
-    let ackDead = undefined;
-
-    const args = process.argv.slice(2);
-    if (args.length > 0) {
-    }
-    
-    return {
-	maxMsg: maxMsg,
-	ackDead: ackDead
-    };	
-    
-}
-
 /** create subscription, register handler **/
-pubsub.createSubscription(TOPICNAME,
+pubsub.createSubscription(topicName,
                           SUBNAME,
                           {
                               flowControl: {
-                                  maxMessages: MAXMSG
+                                  maxMessages: maxMsg
                               },
-                              ackDeadline: ACKDEAD
+                              ackDeadline: ackDead
                           },
-                          function (err, sub) {
+                          function (err, subscription) {
                               if (!err) {
-                                  SUB = sub;
-                                  SUB.on('message', onMessage);
-                                  SUB.on('error', onError);
+                                  sub = subscription;
+                                  sub.on('message', onMessage);
+                                  sub.on('error', onError);
                               } else {
                                   console.error(util.inspect(err));
                                   handleExit();
                                   process.exit(1);
                               }
                           });
-
-
-

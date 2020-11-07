@@ -1,10 +1,10 @@
 {
     "name": "pulltop",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "files": [
         "pulltop.js"
     ],
-    "description": "pulltop: CLI Pub/Sub topic subscriber and console logger",
+    "description": "CLI Google Cloud Pub/Sub subscriber and console logger",
     "license": "Apache-2.0",
     "author": "Google Inc.",
     "engines": {
@@ -13,16 +13,13 @@
     "repository": "https://github.com/GoogleCloudPlatform/pulltop",
     "dependencies": {
         "@google-cloud/pubsub": "^1.7.2",
-        "uuid": "^3.1.0"
+        "uuid": "^3.1.0",
+        "minimist": "^1.2.5"
     },
     "bin": {
         "pulltop": "./pulltop.js"
     },
     "publishConfig": {
         "registry": "https://wombat-dressing-room.appspot.com"
-    },
-    "subscriberConfig": {
-        "ackDeadline": 600,
-        "maxMessages": 180
     }
 }
