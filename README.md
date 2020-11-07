@@ -82,7 +82,7 @@ $ pulltop projects/pubsub-public-data/topics/taxirides-realtime | jq
 
 ## Installation
 
-`npm install -g @google-cloud/pulltop`
+`npm install -g pulltop`
 
 ## Design
 
