@@ -30,7 +30,7 @@ let topicName;
 
 /** check CLI args for sanity **/
 const validateArgs = function(options) {
-    if (!options._[0]) { // topic name for subscription
+    if (!options._[0]) { // topic not specified
         console.error('Usage: pulltop [-m <maxMessages>] [-d <ackDeadline>] <topic-name>');
         process.exit(1);
     } else {
@@ -47,7 +47,7 @@ const SUBNAME = (process.env.USER || 'pulltop') + '-' +
       uuidv1();
 let sub = undefined;
 
-/** process signal handlers to clean up subs **/
+/** process signal handlers to clean up subscription **/
 const handleExit = function() {
     if (sub) {
         sub.delete(function (err) {
@@ -60,11 +60,14 @@ const handleExit = function() {
         });
     }
 }
+
+
+/** register exit handlers **/
 process.on('exit', handleExit);
 process.on('SIGINT', handleExit);
 process.on('SIGTERM', handleExit);
 
-/** PubSub subscription event handlers **/
+/** register Pub/Sub event handlers **/
 const onError = function(error) {
     console.error(util.inspect(error));
     handleExit();
@@ -75,7 +78,7 @@ const onMessage = function(message) {
     message.ack();
 }
 
-/** create subscription, register handler **/
+/** create subscription, register message handler **/
 pubsub.createSubscription(topicName,
                           SUBNAME,
                           {

@@ -5,8 +5,7 @@
 
 ## Synopsis
 
-Usage: `pulltop <topic-name>`
-
+Usage: `pulltop [-m <maxMessages>] [-d <ackDeadline>] <topic-name>`
 
 ```
 $ pulltop projects/pubsub-public-data/topics/taxirides-realtime
