@@ -92,12 +92,6 @@ but since a new subscription is created by pulltop upon instantiation,
 it cannot interfere with the acknowledgement of messages destined for
 other subscriptions on the specified topic.
 
-## Configuration
-
-The subscription acknowledgement deadline and maximum number of locally-queueable messages are
-configured in the `subscriberConfig` section of `package.json` and
-can be adjusted for your use case before running `npm install`.
-
 ## See also
 
 `pulltop` is used (alongside `websocketd`) to [Stream Pub/Sub messages over Websockets](https://cloud.google.com/solutions/streaming-cloud-pub-sub-messages-over-websockets) and in the package [gke-pubsub-websocket-adapter](https://github.com/GoogleCloudPlatform/gke-pubsub-websocket-adapter).
