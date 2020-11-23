@@ -24,13 +24,15 @@ const parseArgs = require('minimist');
 
 const DEFAULT_ACKDEAD = 90;
 const DEFAULT_MAXMSG = 300;
+const DEFAULT_SUBTTL = 86400; // expire subscription after 1 day of inactivity
 let ackDead;
 let maxMsg;
+let subTtl;
 let topicName;
 
 /** check CLI args for sanity **/
 const validateArgs = function(options) {
-    if (!options._[0]) { // topic not specified
+    if (!options._[0]) { // if no topic specified
         console.error('Usage: pulltop [-m <maxMessages>] [-d <ackDeadline>] <topic-name>');
         process.exit(1);
     } else {
@@ -38,6 +40,7 @@ const validateArgs = function(options) {
     }
     maxMsg = options.m || DEFAULT_MAXMSG;
     ackDead = options.d || DEFAULT_ACKDEAD;
+    subTtl = options.x || DEFAULT_SUBTTL;
 }
 validateArgs(parseArgs(process.argv.slice(2)));
 
@@ -67,7 +70,7 @@ process.on('exit', handleExit);
 process.on('SIGINT', handleExit);
 process.on('SIGTERM', handleExit);
 
-/** register Pub/Sub event handlers **/
+/** Pub/Sub event handlers **/
 const onError = function(error) {
     console.error(util.inspect(error));
     handleExit();
@@ -85,6 +88,11 @@ pubsub.createSubscription(topicName,
                               flowControl: {
                                   maxMessages: maxMsg
                               },
+			      expirationPolicy: {
+				  ttl: {
+				      seconds: subTtl
+				  }
+			      },
                               ackDeadline: ackDead
                           },
                           function (err, subscription) {
