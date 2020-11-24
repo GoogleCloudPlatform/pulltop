@@ -36,9 +36,8 @@ let sub = undefined;
 
 /** check CLI args for sanity **/
 const validateArgs = function(options) {
-    console.log(options);
     if (!options._[0]) { // if no topic specified
-        console.error('Usage: pulltop [-m <maxMessages>] [-d <ackDeadline>] [-x <subscriptionTtl>] [-o] <topic-name>');
+        console.error('Usage: pulltop [-m <maxMessages>] [-d <ackDeadline>] [-x <subscriptionTtl>] [-o <true|false>] <topic-name>');
         process.exit(1);
     } else {
         topicName = options._[0];
