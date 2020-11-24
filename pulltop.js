@@ -25,15 +25,20 @@ const parseArgs = require('minimist');
 const DEFAULT_ACKDEAD = 90;
 const DEFAULT_MAXMSG = 300;
 const DEFAULT_SUBTTL = 86400; // expire subscription after 1 day of inactivity
+let order = false;
 let ackDead;
 let maxMsg;
 let subTtl;
+let subOpts;
 let topicName;
+let sub = undefined;
+
 
 /** check CLI args for sanity **/
 const validateArgs = function(options) {
+    console.log(options);
     if (!options._[0]) { // if no topic specified
-        console.error('Usage: pulltop [-m <maxMessages>] [-d <ackDeadline>] <topic-name>');
+        console.error('Usage: pulltop [-m <maxMessages>] [-d <ackDeadline>] [-x <subscriptionTtl>] [-o] <topic-name>');
         process.exit(1);
     } else {
         topicName = options._[0];
@@ -41,14 +46,26 @@ const validateArgs = function(options) {
     maxMsg = options.m || DEFAULT_MAXMSG;
     ackDead = options.d || DEFAULT_ACKDEAD;
     subTtl = options.x || DEFAULT_SUBTTL;
+    order = options.o === 'true' ? true : false;
+    subOpts = setOptions(maxMsg, ackDead, subTtl, order);
 }
-validateArgs(parseArgs(process.argv.slice(2)));
 
-/** manufacture subscription name **/
-const SUBNAME = (process.env.USER || 'pulltop') + '-' +
-      topicName.replace(/\//gi, '-') + '-' +
-      uuidv1();
-let sub = undefined;
+
+/** create subscription options **/
+const setOptions = function(max, ack, ttl, ordered) {
+    let options = {};
+    options.flowControl = {
+        maxMessages: max
+    };
+    options.expirationPolicy = {
+	ttl: {
+	    seconds: ttl
+	}
+    };
+    options.ackDeadline = ack;
+    options.enableMessageOrdering = ordered ? true : false;
+    return options;
+}
 
 /** process signal handlers to clean up subscription **/
 const handleExit = function() {
@@ -63,7 +80,6 @@ const handleExit = function() {
         });
     }
 }
-
 
 /** register exit handlers **/
 process.on('exit', handleExit);
@@ -81,20 +97,17 @@ const onMessage = function(message) {
     message.ack();
 }
 
+validateArgs(parseArgs(process.argv.slice(2)));
+
+/** manufacture subscription name **/
+const SUBNAME = (process.env.USER || 'pulltop') + '-' +
+      topicName.replace(/\//gi, '-') + '-' +
+      uuidv1();
+
 /** create subscription, register message handler **/
 pubsub.createSubscription(topicName,
                           SUBNAME,
-                          {
-                              flowControl: {
-                                  maxMessages: maxMsg
-                              },
-			      expirationPolicy: {
-				  ttl: {
-				      seconds: subTtl
-				  }
-			      },
-                              ackDeadline: ackDead
-                          },
+			  subOpts,
                           function (err, subscription) {
                               if (!err) {
                                   sub = subscription;
